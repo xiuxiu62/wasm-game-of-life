@@ -45,12 +45,9 @@ mod tests {
     fn sim_works() -> Result<()> {
         let mut board = Board::default();
 
-        display(board.to_string(), board.dimensions.0);
-        board.update()?;
-        display(board.to_string(), board.dimensions.0);
-        // for _ in 0..3 {
-        //     cycle(&mut board)?;
-        // }
+        for _ in 0..10 {
+            cycle(&mut board)?;
+        }
 
         Ok(())
     }

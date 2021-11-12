@@ -134,7 +134,9 @@ impl Board {
         NEIGHBOUR_OPS
             .into_iter()
             .map(|op| coords - op)
-            .filter(|Coordinates(x, y)| *x != -1 && *y != -1)
+            .filter(|Coordinates(x, y)| {
+                *x > -1 && *y > -1 && *x < self.dimensions.0 as i64 && *y < self.dimensions.1 as i64
+            })
             .collect::<Vec<Coordinates>>()
     }
 
