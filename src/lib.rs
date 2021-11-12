@@ -15,14 +15,13 @@ pub fn greet(name: &str) {
     alert(format!("hello {}", name).as_str());
 }
 
-#[test]
-fn sim_works() {
-    let mut board = crate::board::Board::default();
-    let width = board.dimensions.0;
-    println!("{}", width);
-    let display = |s: String, width: u32| {
+#[cfg(test)]
+mod tests {
+    use crate::{board::Board, error::Result};
+
+    fn display(s: String, width: u32) {
         println!(
-            "{}",
+            "{}\n",
             s.chars().enumerate().fold("".to_string(), |acc, (i, c)| {
                 if i > 0 {
                     acc + &match i as u32 % width {
@@ -34,9 +33,25 @@ fn sim_works() {
                 }
             })
         )
-    };
+    }
 
-    display(board.to_string(), width);
-    board.update();
-    display(board.to_string(), width);
+    fn cycle(board: &mut Board) -> Result<()> {
+        let width = board.dimensions.0;
+        display(board.to_string(), width);
+        board.update()
+    }
+
+    #[test]
+    fn sim_works() -> Result<()> {
+        let mut board = Board::default();
+
+        display(board.to_string(), board.dimensions.0);
+        board.update()?;
+        display(board.to_string(), board.dimensions.0);
+        // for _ in 0..3 {
+        //     cycle(&mut board)?;
+        // }
+
+        Ok(())
+    }
 }

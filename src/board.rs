@@ -55,10 +55,11 @@ pub struct Board {
     pub dimensions: (u32, u32),
     pub cells: Vec<Cell>,
     size: usize,
+    debug: bool,
 }
 
 impl Board {
-    pub fn new(dimensions: (u32, u32), cells: Vec<Cell>) -> Result<Self> {
+    pub fn new(dimensions: (u32, u32), cells: Vec<Cell>, debug: bool) -> Result<Self> {
         let size = (dimensions.0 * dimensions.1) as usize;
         if size != cells.len() {
             Err(GameError::BoardInitializationError(format!(
@@ -71,22 +72,23 @@ impl Board {
                 dimensions,
                 cells,
                 size,
+                debug,
             })
         }
     }
 
     // TODO: parallelize
-    pub fn update(&mut self) {
-        (0..self.size).for_each(|i| self.update_cell(i as u32));
+    pub fn update(&mut self) -> Result<()> {
+        (0..self.size).try_for_each(|i| self.update_cell(i as u32))
     }
 
     pub fn render(&self) -> String {
         self.to_string()
     }
 
-    fn update_cell(&mut self, index: u32) {
-        let cell = *self.get_cell(index);
-        let neighbors = self.get_neighbors(index);
+    fn update_cell(&mut self, index: u32) -> Result<()> {
+        let cell = *self.get_cell(index)?;
+        let neighbors = self.get_neighbors(index)?;
         let neighbors_living = neighbors.iter().filter(|n| n.is_alive()).count();
 
         match cell {
@@ -100,11 +102,19 @@ impl Board {
                     self.cells[index as usize] = Cell::Dead;
                 }
             }
-        }
+        };
+
+        Ok(())
     }
 
-    fn get_cell(&self, index: u32) -> &Cell {
-        self.cells.get(index as usize).unwrap()
+    fn get_cell(&self, index: u32) -> Result<&Cell> {
+        match self.cells.get(index as usize) {
+            Some(cell) => Ok(cell),
+            None => Err(GameError::CellDoesNotExist(format!(
+                "Cell of index {} does not exist",
+                index
+            ))),
+        }
     }
 
     fn convert_to_2d(&self, index: u32) -> Coordinates {
@@ -128,19 +138,19 @@ impl Board {
             .collect::<Vec<Coordinates>>()
     }
 
-    fn get_neighbors(&self, index: u32) -> Vec<&Cell> {
+    fn get_neighbors(&self, index: u32) -> Result<Vec<&Cell>> {
         let neighbor_coords = self.get_neighbor_coords(index);
         neighbor_coords
             .iter()
             .map(|coords| self.convert_to_1d(coords))
             .map(|index| self.get_cell(index))
-            .collect::<Vec<&Cell>>()
+            .collect::<Result<Vec<&Cell>>>()
     }
 }
 
 impl Default for Board {
     fn default() -> Self {
-        let dimensions = (32, 32);
+        let dimensions = (16, 16);
         let size = (dimensions.0 * dimensions.1) as usize;
         let cells: Vec<Cell> = (0..size)
             .into_iter()
@@ -151,6 +161,7 @@ impl Default for Board {
             dimensions,
             cells,
             size,
+            debug: false,
         }
     }
 }
