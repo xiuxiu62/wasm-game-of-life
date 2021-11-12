@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 mod board;
+mod cell;
 mod error;
 
 use wasm_bindgen::prelude::*;

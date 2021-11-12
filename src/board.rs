@@ -1,54 +1,9 @@
-use std::{
-    fmt::{self, Display},
-    ops,
+use std::fmt;
+
+use crate::{
+    cell::{Cell, Coordinates, NEIGHBOUR_OPS},
+    error::{GameError, Result},
 };
-
-use wasm_bindgen::prelude::*;
-
-use crate::error::{GameError, Result};
-
-#[derive(Clone, Copy, Debug)]
-struct Coordinates(i64, i64);
-
-impl ops::Sub for Coordinates {
-    type Output = Coordinates;
-
-    fn sub(self, rhs: Self) -> Self::Output {
-        Coordinates(self.0 - rhs.0, self.1 - rhs.1)
-    }
-}
-
-static NEIGHBOUR_OPS: [Coordinates; 8] = [
-    Coordinates(-1, -1),
-    Coordinates(-1, 0),
-    Coordinates(-1, 1),
-    Coordinates(0, -1),
-    Coordinates(0, 1),
-    Coordinates(1, -1),
-    Coordinates(1, 0),
-    Coordinates(1, 1),
-];
-
-// TODO: ensure u8 is derived from order
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Cell {
-    Dead,
-    Alive,
-}
-
-impl Cell {
-    pub fn is_alive(&self) -> bool {
-        self == &Cell::Alive
-    }
-}
-
-impl Display for Cell {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", if self == &Cell::Dead { '◻' } else { '◼' })
-    }
-}
 
 #[derive(Debug)]
 pub struct Board {
