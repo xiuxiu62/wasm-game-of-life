@@ -1,0 +1,31 @@
+#![allow(dead_code)]
+
+mod board;
+mod error;
+
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+extern "C" {
+    pub fn alert(s: &str);
+}
+
+#[wasm_bindgen]
+pub fn greet(name: &str) {
+    alert(format!("hello {}", name).as_str());
+}
+
+#[test]
+fn sim_works() {
+    let board = crate::board::Board::default();
+    let width = board.dimensions.0;
+    let display = |s: String, width: u32| {
+        s.chars().enumerate().fold("".to_string(), |acc, (i, c)| {
+            acc + if width % i as u32 == 0 {
+                format!("{}\n", c.to_string())
+            } else {
+                &c.to_string()
+            }
+        })
+    };
+}
