@@ -32,7 +32,6 @@ impl Board {
         }
     }
 
-    // TODO: parallelize
     pub fn update(&mut self) -> Result<()> {
         (0..self.size).try_for_each(|i| self.update_cell(i as u32))
     }
@@ -107,7 +106,7 @@ impl Board {
 
 impl Default for Board {
     fn default() -> Self {
-        let dimensions = (16, 16);
+        let dimensions = (128, 64);
         let size = (dimensions.0 * dimensions.1) as usize;
         let cells: Vec<Cell> = (0..size)
             .into_iter()

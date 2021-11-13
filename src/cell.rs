@@ -2,6 +2,7 @@ use std::{fmt, ops};
 
 use wasm_bindgen::prelude::*;
 
+#[wasm_bindgen]
 #[derive(Clone, Copy, Debug)]
 pub struct Coordinates(pub i64, pub i64);
 

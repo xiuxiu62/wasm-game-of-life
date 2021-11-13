@@ -18,36 +18,50 @@ pub fn greet(name: &str) {
 
 #[cfg(test)]
 mod tests {
+    use std::{
+        io::{self, Write},
+        thread, time,
+    };
+
     use crate::{board::Board, error::Result};
 
-    fn display(s: String, width: u32) {
-        println!(
+    fn display(stdout: &mut io::Stdout, board: &Board) -> Result<()> {
+        let s: String = board.to_string();
+        let width: u32 = board.dimensions.0;
+
+        let message = format!(
             "{}\n",
             s.chars().enumerate().fold("".to_string(), |acc, (i, c)| {
                 if i > 0 {
                     acc + &match i as u32 % width {
-                        0 => format!("{}\n", c.to_string()),
+                        0 => format!("\n{}", c.to_string()),
                         _ => c.to_string(),
                     }
                 } else {
                     acc + &c.to_string()
                 }
             })
-        )
+        );
+        stdout.write(message.as_bytes())?;
+        Ok(())
     }
 
-    fn cycle(board: &mut Board) -> Result<()> {
-        let width = board.dimensions.0;
-        display(board.to_string(), width);
+    fn cycle(stdout: &mut io::Stdout, board: &mut Board) -> Result<()> {
+        display(stdout, board)?;
         board.update()
     }
 
     #[test]
     fn sim_works() -> Result<()> {
         let mut board = Board::default();
+        let mut stdout = io::stdout();
+        let duration = time::Duration::from_millis(50);
 
-        for _ in 0..10 {
-            cycle(&mut board)?;
+        print!("\x1B[2J\x1B[1;1H");
+        for _ in 0..500 {
+            cycle(&mut stdout, &mut board)?;
+            thread::sleep(duration);
+            print!("\x1B[2J\x1B[1;1H");
         }
 
         Ok(())
