@@ -1,4 +1,8 @@
-use std::{error, io, result};
+use std::{
+    error,
+    io::{self, Write},
+    result,
+};
 
 #[derive(Debug)]
 pub enum GameError {
